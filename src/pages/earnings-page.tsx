@@ -1,5 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+
+// Fetcher with credentials for authenticated endpoints
+const fetchWithCredentials = (url: string) =>
+  fetch(url, { credentials: 'include' }).then(res => {
+    if (!res.ok) throw new Error('Network response was not ok');
+    return res.json();
+  });
 import { useAuth } from "@/hooks/use-auth";
 import Sidebar from "@/components/ui/sidebar";
 import MobileNav from "@/components/ui/mobile-nav";
@@ -50,16 +57,19 @@ export default function EarningsPage() {
   // Get user stats
   const { data: stats, isLoading: statsLoading } = useQuery<UserStats>({
     queryKey: ["/api/user/stats"],
+    queryFn: () => fetchWithCredentials("/api/user/stats"),
   });
 
   // Get earnings history
   const { data: earnings = [], isLoading: earningsLoading } = useQuery<Earning[]>({
     queryKey: ["/api/user/earnings"],
+    queryFn: () => fetchWithCredentials("/api/user/earnings"),
   });
 
   // Get withdrawals history
   const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<Withdrawal[]>({
     queryKey: ["/api/user/withdrawals"],
+    queryFn: () => fetchWithCredentials("/api/user/withdrawals"),
   });
 
   const isLoading = statsLoading || earningsLoading || withdrawalsLoading;
