@@ -68,7 +68,8 @@ export default function AuthPage() {
     setIsValidatingCode(true);
     setCodeValidationMessage("");
     try {
-      const response = await fetch(`/api/validate-referral/${code}`);
+      const apiBase = import.meta.env.VITE_API_URL || "";
+      const response = await fetch(`${apiBase}/api/validate-referral/${code}`);
       const data = await response.json();
       console.log("Referral code validation response:", data);
 
