@@ -275,6 +275,7 @@ export default function ReferralsPage() {
                             <TableHead>Username</TableHead>
                             <TableHead>Date Joined</TableHead>
                             <TableHead>Level</TableHead>
+                            <TableHead>Activated</TableHead>
                             <TableHead className="text-right">
                               Earnings
                             </TableHead>
@@ -289,7 +290,7 @@ export default function ReferralsPage() {
                               <TableCell>
                                 {format(
                                   new Date(referral.createdAt),
-                                  "MMM dd, yyyy",
+                                  "MMM dd, yyyy"
                                 )}
                               </TableCell>
                               <TableCell>
@@ -302,6 +303,17 @@ export default function ReferralsPage() {
                                 >
                                   Level {referral.level}
                                 </Badge>
+                              </TableCell>
+                              <TableCell>
+                                {referral.isActive ? (
+                                  <span className="text-green-600 font-semibold">
+                                    Yes
+                                  </span>
+                                ) : (
+                                  <span className="text-red-500 font-semibold">
+                                    No
+                                  </span>
+                                )}
                               </TableCell>
                               <TableCell className="text-right font-medium text-green-600">
                                 +{referral.amount} Sh
