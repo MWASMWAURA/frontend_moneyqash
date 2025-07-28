@@ -318,7 +318,7 @@ function RegisterForm({
         toast({
           title: "Account created successfully!",
           description: referrerInfo
-            ? `You've been referred by ${referrerInfo.fullName}. Activate your account to earn rewards for your referrer!`
+            ? `You've been referred by ${referrerInfo.fullName}. Activate your account to earn rewards!`
             : "Welcome to MoneyQash!",
         });
       },
@@ -395,7 +395,11 @@ function RegisterForm({
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input placeholder="07XX XXX XXX" {...field} value={field.value ?? ""} />
+                <Input
+                  placeholder="07XX XXX XXX"
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
