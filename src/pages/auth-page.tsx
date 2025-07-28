@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/hooks/use-auth";
-import { insertUserSchema } from "@shared/schema";
+import { baseInsertUserSchema } from "@shared/schema";
 import { Redirect } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -268,12 +268,12 @@ function RegisterForm({
 }: RegisterFormProps) {
   const { registerMutation } = useAuth();
   const { toast } = useToast();
-  const registerSchema = insertUserSchema
+  const registerSchema = baseInsertUserSchema
     .extend({
       passwordConfirm: z.string().min(1, "Please confirm your password"),
       referralCode: z.string().optional(),
     })
-    .refine((data) => data.password === data.passwordConfirm, {
+    .refine((data: any) => data.password === data.passwordConfirm, {
       message: "Passwords don't match",
       path: ["passwordConfirm"],
     });

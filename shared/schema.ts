@@ -14,13 +14,19 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
+export const baseInsertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
   fullName: true,
   phone: true,
   withdrawalPhone: true,
 });
+
+export const insertUserSchema = baseInsertUserSchema.transform((data) => ({
+  ...data,
+  phone: data.phone ?? undefined,
+  withdrawalPhone: data.withdrawalPhone ?? undefined,
+}));
 
 export const referrals = pgTable("referrals", {
   id: serial("id").primaryKey(),
