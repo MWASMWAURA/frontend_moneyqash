@@ -6,10 +6,10 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://your-backend-url.onrender.com/api/$1"
+      "destination": "https://moneyqash.onrender.com/api/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api).*)",
       "destination": "/index.html"
     }
   ],
@@ -23,7 +23,7 @@
         },
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://your-frontend-url.vercel.app"
+          "value": "https://www.moneyqash.online"
         },
         {
           "key": "Access-Control-Allow-Methods",
