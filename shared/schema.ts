@@ -30,7 +30,7 @@ export const insertUserSchema = baseInsertUserSchema.transform((data: z.infer<ty
   ...data,
   phone: data.phone ?? undefined,
   withdrawalPhone: data.withdrawalPhone ?? undefined,
-  referrerId: data.referrerId ?? undefined, // ADD THIS LINE
+  referrerId: data.referrerId ?? undefined,
 }));
 
 export const referrals = pgTable("referrals", {
@@ -125,6 +125,10 @@ export const withdrawals = pgTable("withdrawals", {
   processedAt: timestamp("processed_at"),
   paymentMethod: text("payment_method").notNull(),
   phoneNumber: text("phone_number"),
+  mpesaConversationId: text("mpesa_conversation_id"),
+  mpesaOriginatorConversationId: text("mpesa_originator_conversation_id"),
+  failureReason: text("failure_reason"),
+  completedAt: timestamp("completed_at"),
 });
 
 export const insertWithdrawalSchema = createInsertSchema(withdrawals).pick({
@@ -135,6 +139,10 @@ export const insertWithdrawalSchema = createInsertSchema(withdrawals).pick({
   status: true,
   paymentMethod: true,
   phoneNumber: true,
+  mpesaConversationId: true,
+  mpesaOriginatorConversationId: true,
+  failureReason: true,
+  completedAt: true,
 });
 
 // M-Pesa Transactions Table
@@ -157,7 +165,6 @@ export const mpesaTransactions = pgTable("mpesa_transactions", {
 export type MpesaTransaction = typeof mpesaTransactions.$inferSelect;
 export type InsertMpesaTransaction = typeof mpesaTransactions.$inferInsert;
 export const insertMpesaTransactionSchema = createInsertSchema(mpesaTransactions);
-
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
