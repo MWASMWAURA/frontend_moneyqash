@@ -11,6 +11,8 @@ export const users = pgTable("users", {
   withdrawalPhone: text("withdrawal_phone"),
   isActivated: boolean("is_activated").default(false).notNull(),
   accountBalance: integer("account_balance").default(0).notNull(),
+  referralcode: text("referral_code").notNull().unique(),
+  referrerId: integer("referrer_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -20,6 +22,8 @@ export const baseInsertUserSchema = createInsertSchema(users).pick({
   fullName: true,
   phone: true,
   withdrawalPhone: true,
+  referralcode: true,
+  referrerId: true,
 });
 
 export const insertUserSchema = baseInsertUserSchema.transform((data) => ({
