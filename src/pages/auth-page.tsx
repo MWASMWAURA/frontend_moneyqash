@@ -273,7 +273,9 @@ function RegisterForm({
   const registerSchema = baseInsertUserSchema
     .extend({
       passwordConfirm: z.string().min(1, "Please confirm your password"),
+      withdrawalPhone: z.string().optional(),
       referralCode: z.string().optional(),
+      referrerId: z.number().optional(),
     })
     .refine((data: any) => data.password === data.passwordConfirm, {
       message: "Passwords don't match",
@@ -287,7 +289,9 @@ function RegisterForm({
       passwordConfirm: "",
       fullName: "",
       phone: "",
+      withdrawalPhone: "",
       referralCode: referralCode || "", // Initialize with the persistent referral code
+      referrerId: undefined,
     },
   });
   // Update form when referralCode changes - with proper cleanup
