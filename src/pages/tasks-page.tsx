@@ -3,6 +3,12 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { UserStats, Task, AvailableTask } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+
+// Extended task type for UI with optional disabled properties
+type ExtendedTask = (AvailableTask | Task) & {
+  disabled?: boolean;
+  disabledReason?: string;
+};
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -179,7 +185,7 @@ export default function TasksPage() {
     }
   };
 
-  const filterTasksByType = (type: string) => {
+  const filterTasksByType = (type: string): ExtendedTask[] => {
     if (!availableTasks || !userTasks) return [];
 
     const now = new Date();
@@ -217,21 +223,22 @@ export default function TasksPage() {
     // Get tasks that are NOT in cooldown (available to watch again)
     const availableTasksNotInCooldown = available.filter((availableTask) => {
       return !tasksInCooldown.some(
-        (completedTask) => completedTask.taskId === availableTask.id
+        (completedTask) => completedTask.availableTaskId === availableTask.id
       );
     });
 
     // If weekly limit reached, show only completed tasks and tasks not in cooldown
     if (completedThisWeek.length >= weeklyLimit) {
       // User can still see tasks but can't complete new ones this week
-      return [
-        ...completed,
-        ...availableTasksNotInCooldown.map((task) => ({
+      const disabledTasks: ExtendedTask[] = availableTasksNotInCooldown.map(
+        (task) => ({
           ...task,
           disabled: true,
           disabledReason: `Weekly limit reached (${weeklyLimit} tasks per week)`,
-        })),
-      ];
+        })
+      );
+
+      return [...completed, ...disabledTasks];
     }
 
     // Show available tasks (not in cooldown) + completed tasks
@@ -543,14 +550,14 @@ export default function TasksPage() {
                                 {task.duration} • KSh {task.reward} reward
                               </p>
 
-                              {task.disabled ? (
+                              {(task as ExtendedTask).disabled ? (
                                 <div className="w-full">
                                   <Button disabled className="w-full">
                                     <i className="ri-lock-line mr-1"></i>
                                     Weekly Limit Reached
                                   </Button>
                                   <p className="text-xs text-orange-600 mt-1 text-center">
-                                    {task.disabledReason}
+                                    {(task as ExtendedTask).disabledReason}
                                   </p>
                                 </div>
                               ) : contentCompleted[task.id] ? (
@@ -688,14 +695,14 @@ export default function TasksPage() {
                                 {task.duration} • KSh {task.reward} reward
                               </p>
 
-                              {task.disabled ? (
+                              {(task as ExtendedTask).disabled ? (
                                 <div className="w-full">
                                   <Button disabled className="w-full">
                                     <i className="ri-lock-line mr-1"></i>
                                     Weekly Limit Reached
                                   </Button>
                                   <p className="text-xs text-orange-600 mt-1 text-center">
-                                    {task.disabledReason}
+                                    {(task as ExtendedTask).disabledReason}
                                   </p>
                                 </div>
                               ) : contentCompleted[task.id] ? (
@@ -835,14 +842,14 @@ export default function TasksPage() {
                                 {task.duration} • KSh {task.reward} reward
                               </p>
 
-                              {task.disabled ? (
+                              {(task as ExtendedTask).disabled ? (
                                 <div className="w-full">
                                   <Button disabled className="w-full">
                                     <i className="ri-lock-line mr-1"></i>
                                     Weekly Limit Reached
                                   </Button>
                                   <p className="text-xs text-orange-600 mt-1 text-center">
-                                    {task.disabledReason}
+                                    {(task as ExtendedTask).disabledReason}
                                   </p>
                                 </div>
                               ) : contentCompleted[task.id] ? (
@@ -981,14 +988,14 @@ export default function TasksPage() {
                                 {task.duration} • KSh {task.reward} reward
                               </p>
 
-                              {task.disabled ? (
+                              {(task as ExtendedTask).disabled ? (
                                 <div className="w-full">
                                   <Button disabled className="w-full">
                                     <i className="ri-lock-line mr-1"></i>
                                     Weekly Limit Reached
                                   </Button>
                                   <p className="text-xs text-orange-600 mt-1 text-center">
-                                    {task.disabledReason}
+                                    {(task as ExtendedTask).disabledReason}
                                   </p>
                                 </div>
                               ) : contentCompleted[task.id] ? (
