@@ -13,8 +13,8 @@ const loadExternalResources = () => {
   remixIconLink.as = "style";
   remixIconLink.href =
     "https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css";
-  remixIconLink.onload = function () {
-    this.rel = "stylesheet";
+  remixIconLink.onload = () => {
+    remixIconLink.rel = "stylesheet";
   };
   document.head.appendChild(remixIconLink);
 
@@ -24,8 +24,8 @@ const loadExternalResources = () => {
   fontLink.as = "style";
   fontLink.href =
     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap";
-  fontLink.onload = function () {
-    this.rel = "stylesheet";
+  fontLink.onload = () => {
+    fontLink.rel = "stylesheet";
   };
   document.head.appendChild(fontLink);
 };

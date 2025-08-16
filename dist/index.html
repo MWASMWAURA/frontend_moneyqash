@@ -5,22 +5,58 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <meta name="description" content="Earn real money online with MoneyQash! Complete simple tasks, refer friends, and get instant payouts. Join a growing community and start earning today!" />
+    
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    
+    <!-- Open Graph -->
     <meta property="og:title" content="MoneyQash - Earn Money Online" />
     <meta property="og:description" content="Earn real money by completing tasks and referring friends. Fast payouts, easy signup, and real rewards!" />
     <meta property="og:image" content="https://moneyqash.online/og-image.png" />
     <meta property="og:url" content="https://moneyqash.online" />
     <meta property="og:type" content="website" />
+    
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="MoneyQash - Earn Money Online" />
     <meta name="twitter:description" content="Earn real money by completing tasks and referring friends. Fast payouts, easy signup, and real rewards!" />
     <meta name="twitter:image" content="https://moneyqash.online/og-image.png" />
-    <script type="module" crossorigin src="/assets/index-f7ae1891.js"></script>
+    
+    <!-- Prevent flash of unstyled content -->
+    <style>
+      html { background-color: #f9fafb; }
+      #root { min-height: 100vh; }
+      .loading-fallback {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 32px;
+        height: 32px;
+        border: 2px solid #e5e7eb;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-f7b1beae.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-vendor-88a19e6c.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-vendor-2bcfc5c4.js">
+    <link rel="modulepreload" crossorigin href="/assets/query-vendor-71350901.js">
+    <link rel="modulepreload" crossorigin href="/assets/utils-vendor-379078c3.js">
     <link rel="stylesheet" href="/assets/index-23724e74.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback loading indicator -->
+      <div class="loading-fallback"></div>
+    </div>
     
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>

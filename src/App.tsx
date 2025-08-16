@@ -6,14 +6,16 @@ import { Toaster } from "@/components/ui/toaster";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
-// Lazy load components for code splitting
+// Direct imports for protected routes to avoid type issues
+import DashboardPage from "@/pages/dashboard-page";
+import ReferralsPage from "@/pages/referrals-page";
+import EarningsPage from "@/pages/earnings-page";
+import TasksPageNew from "@/pages/tasks-page-new";
+import SettingsPage from "@/pages/settings-page";
+
+// Lazy load only public components
 const NotFound = lazy(() => import("@/pages/not-found"));
 const AuthPage = lazy(() => import("@/pages/auth-page"));
-const DashboardPage = lazy(() => import("@/pages/dashboard-page"));
-const ReferralsPage = lazy(() => import("@/pages/referrals-page"));
-const EarningsPage = lazy(() => import("@/pages/earnings-page"));
-const TasksPageNew = lazy(() => import("@/pages/tasks-page-new"));
-const SettingsPage = lazy(() => import("@/pages/settings-page"));
 
 // Loading component
 const PageLoader = () => (
