@@ -281,7 +281,7 @@ export default function ReferralTree({ stats }: ReferralTreeProps) {
                   </span>
                   <p>
                     You refer someone (Level 1 referral) - you earn 300 Sh for
-                    first, 270 Sh for additional
+                    first
                   </p>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -290,7 +290,7 @@ export default function ReferralTree({ stats }: ReferralTreeProps) {
                   </span>
                   <p>
                     Your referral refers someone else (Level 2 referral) - you
-                    earn additional commission
+                    earn 150 Sh commission
                   </p>
                 </div>
                 <div className="flex items-start space-x-3">

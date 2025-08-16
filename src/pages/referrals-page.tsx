@@ -31,14 +31,22 @@ export default function ReferralsPage() {
   const { user } = useAuth();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
+  const fetchWithCredentials = (url: string) =>
+    fetch(url, { credentials: "include" }).then((res) => {
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    });
+
   const { data: stats, isLoading: statsLoading } = useQuery<UserStats>({
     queryKey: ["/api/user/stats"],
+    queryFn: () => fetchWithCredentials("/api/user/stats"),
   });
 
   const { data: referrals = [], isLoading: referralsLoading } = useQuery<
     Referral[]
   >({
     queryKey: ["/api/user/referrals"],
+    queryFn: () => fetchWithCredentials("/api/user/referrals"),
   });
 
   const isLoading = statsLoading || referralsLoading;
@@ -130,84 +138,13 @@ export default function ReferralsPage() {
                       </div>
                       <h3 className="font-medium mb-2">3. Earn Rewards</h3>
                       <p className="text-sm text-gray-600">
-                        Earn 300 Sh for your first referral, 270 Sh for each
-                        additional one, and 150 Sh from level 2 referrals.
+                        Earn 300 Sh for your first referral, and 150 Sh from
+                        level 2 referrals.
                       </p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Referral Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardDescription>Direct Referrals</CardDescription>
-                    <CardTitle className="text-2xl">
-                      {stats.directReferrals}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-muted-foreground flex items-center">
-                      <Users className="h-4 w-4 mr-1 text-blue-500" />
-                      Level 1 Referrals
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Earn 300 Sh for first, 150 Sh each additional
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardDescription>Secondary Referrals</CardDescription>
-                    <CardTitle className="text-2xl">
-                      {stats.secondaryReferrals}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-muted-foreground flex items-center">
-                      <Users className="h-4 w-4 mr-1 text-purple-500" />
-                      Level 2 Referrals
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Earn when your referrals refer others
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardDescription>Referral Earnings</CardDescription>
-                    <CardTitle className="text-2xl">
-                      {stats.totalReferralEarnings} Sh
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-muted-foreground flex items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4 mr-1 text-green-500"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
-                        <path d="M12 18V6" />
-                      </svg>
-                      Total Commission Earned
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      From all referral levels (Available:{" "}
-                      {stats.accountBalance} Sh)
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
 
               {/* Enhanced Referral Tree Component */}
               <ReferralTree stats={stats} />
@@ -245,13 +182,9 @@ export default function ReferralsPage() {
                         <span className="font-semibold">300 Shillings</span>
                       </li>
                       <li>
-                        Each additional direct referral:{" "}
-                        <span className="font-semibold">150 Shillings</span>
-                      </li>
-                      <li>
-                        When your referrals refer others:{" "}
+                        Level 2 referrals (when your referrals refer others):{" "}
                         <span className="font-semibold">
-                          Additional earnings
+                          150 Shillings each
                         </span>
                       </li>
                     </ul>
@@ -324,13 +257,15 @@ export default function ReferralsPage() {
                                     Yes
                                   </span>
                                 ) : (
-                                  <span className="text-red-500 font-semibold">
-                                    No
-                                  </span>
+                                  <span className="text-gray-500">Not yet</span>
                                 )}
                               </TableCell>
-                              <TableCell className="text-right font-medium text-green-600">
-                                +{referral.amount} Sh
+                              <TableCell className="text-right">
+                                <span className="font-semibold text-green-600">
+                                  {referral.isActive
+                                    ? `+${referral.amount} Sh`
+                                    : "Pending"}
+                                </span>
                               </TableCell>
                             </TableRow>
                           ))}

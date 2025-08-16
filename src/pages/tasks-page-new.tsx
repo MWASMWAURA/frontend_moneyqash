@@ -24,8 +24,15 @@ export default function TasksPage() {
     setActivationModalOpen(true);
   };
 
+  const fetchWithCredentials = (url: string) =>
+    fetch(url, { credentials: "include" }).then((res) => {
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    });
+
   const { data: stats, isLoading } = useQuery<UserStats>({
     queryKey: ["/api/user/stats"],
+    queryFn: () => fetchWithCredentials("/api/user/stats"),
   });
 
   const openWithdrawModal = (source: string, amount: number) => {

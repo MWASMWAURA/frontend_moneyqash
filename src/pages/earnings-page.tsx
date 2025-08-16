@@ -175,13 +175,16 @@ export default function EarningsPage() {
                   <CardHeader className="pb-2">
                     <CardDescription>Ads Earnings</CardDescription>
                     <CardTitle className="text-2xl">
-                      {stats.taskEarnings.ads} Sh
+                      {stats.taskBalances?.ads || 0} Sh
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-muted-foreground flex items-center">
                       <TrendingUp className="h-4 w-4 mr-1 text-blue-500" />
-                      Video Ad Rewards
+                      Available for Withdrawal
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Total Earned: {stats.taskEarnings.ads} Sh
                     </div>
                   </CardContent>
                 </Card>
@@ -190,16 +193,23 @@ export default function EarningsPage() {
                   <CardHeader className="pb-2">
                     <CardDescription>Social Media Earnings</CardDescription>
                     <CardTitle className="text-2xl">
-                      {stats.taskEarnings.tiktok +
-                        stats.taskEarnings.youtube +
-                        stats.taskEarnings.instagram}{" "}
+                      {(stats.taskBalances?.tiktok || 0) +
+                        (stats.taskBalances?.youtube || 0) +
+                        (stats.taskBalances?.instagram || 0)}{" "}
                       Sh
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-muted-foreground flex items-center">
                       <TrendingUp className="h-4 w-4 mr-1 text-purple-500" />
-                      TikTok, YouTube, Instagram
+                      Available for Withdrawal
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Total Earned:{" "}
+                      {stats.taskEarnings.tiktok +
+                        stats.taskEarnings.youtube +
+                        stats.taskEarnings.instagram}{" "}
+                      Sh
                     </div>
                   </CardContent>
                 </Card>
@@ -220,7 +230,7 @@ export default function EarningsPage() {
                 </Card>
               </div>
 
-              {/* Withdrawal Buttons */}
+              {/* Withdrawal Buttons - Updated to use taskBalances */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Button
                   onClick={() =>
@@ -230,33 +240,48 @@ export default function EarningsPage() {
                   className="w-full bg-green-600 hover:bg-green-700"
                 >
                   Withdraw Referral Earnings
+                  <div className="text-xs opacity-80 mt-1">
+                    Available: {stats.accountBalance} Sh
+                  </div>
                 </Button>
                 <Button
                   onClick={() =>
-                    openWithdrawModal("ad", stats.taskEarnings.ads)
+                    openWithdrawModal("ad", stats.taskBalances?.ads || 0)
                   }
-                  disabled={stats.taskEarnings.ads < 600}
+                  disabled={(stats.taskBalances?.ads || 0) < 600}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
                   Withdraw Ad Earnings
+                  <div className="text-xs opacity-80 mt-1">
+                    Available: {stats.taskBalances?.ads || 0} Sh
+                  </div>
                 </Button>
                 <Button
                   onClick={() =>
-                    openWithdrawModal("tiktok", stats.taskEarnings.tiktok)
+                    openWithdrawModal("tiktok", stats.taskBalances?.tiktok || 0)
                   }
-                  disabled={stats.taskEarnings.tiktok < 600}
+                  disabled={(stats.taskBalances?.tiktok || 0) < 600}
                   className="w-full bg-pink-600 hover:bg-pink-700"
                 >
                   Withdraw TikTok Earnings
+                  <div className="text-xs opacity-80 mt-1">
+                    Available: {stats.taskBalances?.tiktok || 0} Sh
+                  </div>
                 </Button>
                 <Button
                   onClick={() =>
-                    openWithdrawModal("youtube", stats.taskEarnings.youtube)
+                    openWithdrawModal(
+                      "youtube",
+                      stats.taskBalances?.youtube || 0
+                    )
                   }
-                  disabled={stats.taskEarnings.youtube < 600}
+                  disabled={(stats.taskBalances?.youtube || 0) < 600}
                   className="w-full bg-red-600 hover:bg-red-700"
                 >
                   Withdraw YouTube Earnings
+                  <div className="text-xs opacity-80 mt-1">
+                    Available: {stats.taskBalances?.youtube || 0} Sh
+                  </div>
                 </Button>
               </div>
 

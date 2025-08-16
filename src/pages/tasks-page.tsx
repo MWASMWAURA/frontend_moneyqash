@@ -182,8 +182,14 @@ export default function TasksPage() {
   const filterTasksByType = (type: string) => {
     if (!availableTasks || !userTasks) return [];
 
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const weeklyLimit = 2;
+
     // Get available tasks of this type
     const available = availableTasks.filter((task) => task.type === type);
+
     // Get user's completed tasks of this type
     const completed = userTasks.filter(
       (task) => task.type === type && task.completed
@@ -194,23 +200,42 @@ export default function TasksPage() {
       return available;
     }
 
-    // For existing users, check weekly limits
-    const weeklyLimit = 2;
+    // Find tasks completed this week (for weekly limit check)
     const completedThisWeek = completed.filter((task) => {
       if (!task.completedAt) return false;
       const completedDate = new Date(task.completedAt);
-      const now = new Date();
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       return completedDate >= weekAgo;
     });
 
-    // If weekly limit is reached, show only completed tasks
+    // Find tasks in cooldown period (completed within 2 weeks)
+    const tasksInCooldown = completed.filter((task) => {
+      if (!task.completedAt) return false;
+      const completedDate = new Date(task.completedAt);
+      return completedDate >= twoWeeksAgo;
+    });
+
+    // Get tasks that are NOT in cooldown (available to watch again)
+    const availableTasksNotInCooldown = available.filter((availableTask) => {
+      return !tasksInCooldown.some(
+        (completedTask) => completedTask.taskId === availableTask.id
+      );
+    });
+
+    // If weekly limit reached, show only completed tasks and tasks not in cooldown
     if (completedThisWeek.length >= weeklyLimit) {
-      return completed;
+      // User can still see tasks but can't complete new ones this week
+      return [
+        ...completed,
+        ...availableTasksNotInCooldown.map((task) => ({
+          ...task,
+          disabled: true,
+          disabledReason: `Weekly limit reached (${weeklyLimit} tasks per week)`,
+        })),
+      ];
     }
 
-    // Otherwise, show available tasks plus completed ones
-    return [...available, ...completed];
+    // Show available tasks (not in cooldown) + completed tasks
+    return [...availableTasksNotInCooldown, ...completed];
   };
 
   const getEarningsByType = (type: string): number => {
@@ -518,7 +543,17 @@ export default function TasksPage() {
                                 {task.duration} • KSh {task.reward} reward
                               </p>
 
-                              {contentCompleted[task.id] ? (
+                              {task.disabled ? (
+                                <div className="w-full">
+                                  <Button disabled className="w-full">
+                                    <i className="ri-lock-line mr-1"></i>
+                                    Weekly Limit Reached
+                                  </Button>
+                                  <p className="text-xs text-orange-600 mt-1 text-center">
+                                    {task.disabledReason}
+                                  </p>
+                                </div>
+                              ) : contentCompleted[task.id] ? (
                                 <Button disabled className="w-full">
                                   <i className="ri-check-line mr-1"></i>{" "}
                                   Completed
@@ -653,7 +688,17 @@ export default function TasksPage() {
                                 {task.duration} • KSh {task.reward} reward
                               </p>
 
-                              {contentCompleted[task.id] ? (
+                              {task.disabled ? (
+                                <div className="w-full">
+                                  <Button disabled className="w-full">
+                                    <i className="ri-lock-line mr-1"></i>
+                                    Weekly Limit Reached
+                                  </Button>
+                                  <p className="text-xs text-orange-600 mt-1 text-center">
+                                    {task.disabledReason}
+                                  </p>
+                                </div>
+                              ) : contentCompleted[task.id] ? (
                                 <Button disabled className="w-full">
                                   <i className="ri-check-line mr-1"></i>{" "}
                                   Completed
@@ -790,7 +835,17 @@ export default function TasksPage() {
                                 {task.duration} • KSh {task.reward} reward
                               </p>
 
-                              {contentCompleted[task.id] ? (
+                              {task.disabled ? (
+                                <div className="w-full">
+                                  <Button disabled className="w-full">
+                                    <i className="ri-lock-line mr-1"></i>
+                                    Weekly Limit Reached
+                                  </Button>
+                                  <p className="text-xs text-orange-600 mt-1 text-center">
+                                    {task.disabledReason}
+                                  </p>
+                                </div>
+                              ) : contentCompleted[task.id] ? (
                                 <Button disabled className="w-full">
                                   <i className="ri-check-line mr-1"></i>{" "}
                                   Completed
@@ -926,7 +981,17 @@ export default function TasksPage() {
                                 {task.duration} • KSh {task.reward} reward
                               </p>
 
-                              {contentCompleted[task.id] ? (
+                              {task.disabled ? (
+                                <div className="w-full">
+                                  <Button disabled className="w-full">
+                                    <i className="ri-lock-line mr-1"></i>
+                                    Weekly Limit Reached
+                                  </Button>
+                                  <p className="text-xs text-orange-600 mt-1 text-center">
+                                    {task.disabledReason}
+                                  </p>
+                                </div>
+                              ) : contentCompleted[task.id] ? (
                                 <Button disabled className="w-full">
                                   <i className="ri-check-line mr-1"></i>{" "}
                                   Completed
