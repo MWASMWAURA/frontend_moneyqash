@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { endpoints } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -67,13 +68,13 @@ export default function WithdrawModal({
   const { data: userData } = useQuery({
     queryKey: ["/api/user"],
   });
-  
+
   // Cast user data to our type
   const user = userData as UserWithPhone | undefined;
 
   useEffect(() => {
     setMaxAmount(amount);
-    
+
     // Format source for display
     if (source === "referral") {
       setFormattedSource("Referral");
@@ -89,7 +90,8 @@ export default function WithdrawModal({
   }, [source, amount]);
 
   const formSchema = z.object({
-    amount: z.number()
+    amount: z
+      .number()
       .min(600, "Minimum withdrawal amount is KSh 600")
       .max(maxAmount, `Maximum amount you can withdraw is KSh ${maxAmount}`),
     paymentMethod: z.string().min(1, "Please select a payment method"),
@@ -110,7 +112,7 @@ export default function WithdrawModal({
   // Update form values when props change
   useEffect(() => {
     form.setValue("amount", maxAmount >= 600 ? maxAmount : 600);
-    
+
     // Set phone number to user's registered number if option is selected
     if (useRegisteredPhone && user?.phone) {
       form.setValue("phoneNumber", user.phone);
@@ -129,17 +131,26 @@ export default function WithdrawModal({
 
   const withdrawMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      const res = await apiRequest("POST", "/api/withdrawals", {
+      const res = await apiRequest("POST", endpoints.user.withdraw, {
         ...data,
         source: source,
       });
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Invalidate multiple queries to ensure all data is refreshed
       queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/earnings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/withdrawals"] });
+
       toast({
-        title: "Withdrawal successful!",
-        description: "Your funds are being processed. A fee of KSh 50 was deducted.",
+        title: "Withdrawal request submitted!",
+        description: `Your withdrawal of KSh ${form.getValues(
+          "amount"
+        )} is being processed. You will receive KSh ${
+          form.getValues("amount") - 50
+        } after the KSh 50 processing fee.`,
+        variant: "default",
       });
       onClose();
       form.reset();
@@ -147,7 +158,9 @@ export default function WithdrawModal({
     onError: (error: Error) => {
       toast({
         title: "Withdrawal failed",
-        description: error.message,
+        description:
+          error.message ||
+          "There was an error processing your withdrawal. Please try again.",
         variant: "destructive",
       });
     },
@@ -170,7 +183,8 @@ export default function WithdrawModal({
             Withdraw {formattedSource} Earnings
           </DialogTitle>
           <DialogDescription>
-            You can withdraw your earnings to your preferred payment method. A fee of KSh 50 will be deducted from your withdrawal.
+            You can withdraw your earnings to your preferred payment method. A
+            fee of KSh 50 will be deducted from your withdrawal.
           </DialogDescription>
         </DialogHeader>
 
@@ -178,16 +192,26 @@ export default function WithdrawModal({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="mt-4 bg-gray-50 p-4 rounded-md">
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Available Balance</span>
-                <span className="text-sm font-medium text-gray-900">KSh {maxAmount}</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Available Balance
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  KSh {maxAmount}
+                </span>
               </div>
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Withdrawal Fee</span>
-                <span className="text-sm font-medium text-gray-900">KSh 50</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Withdrawal Fee
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  KSh 50
+                </span>
               </div>
               <div className="border-t border-gray-200 pt-2 mt-2">
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-700">You Will Receive</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    You Will Receive
+                  </span>
                   <span className="text-sm font-bold text-gray-900">
                     KSh {(form.watch("amount") || 0) - 50}
                   </span>
@@ -251,7 +275,9 @@ export default function WithdrawModal({
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="M-Pesa">M-Pesa</SelectItem>
-                      <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                      <SelectItem value="Bank Transfer">
+                        Bank Transfer
+                      </SelectItem>
                       <SelectItem value="PayPal">PayPal</SelectItem>
                     </SelectContent>
                   </Select>
@@ -262,8 +288,8 @@ export default function WithdrawModal({
 
             {user?.phone && (
               <div className="flex items-center space-x-2 my-4">
-                <Checkbox 
-                  id="useRegisteredPhone" 
+                <Checkbox
+                  id="useRegisteredPhone"
                   checked={useRegisteredPhone}
                   onCheckedChange={handleRegisteredPhoneChange}
                 />
@@ -287,11 +313,13 @@ export default function WithdrawModal({
                       type="tel"
                       placeholder="e.g. 07XX XXX XXX"
                       {...field}
-                      disabled={useRegisteredPhone && user?.phone ? true : false}
+                      disabled={
+                        useRegisteredPhone && user?.phone ? true : false
+                      }
                     />
                   </FormControl>
                   <FormDescription>
-                    {useRegisteredPhone && user?.phone 
+                    {useRegisteredPhone && user?.phone
                       ? "Using your registered phone number"
                       : "Enter the phone number to receive your withdrawal"}
                   </FormDescription>
@@ -301,11 +329,7 @@ export default function WithdrawModal({
             />
 
             <DialogFooter className="flex sm:justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-              >
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
               <Button

@@ -13,6 +13,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import ReferralTree from "@/components/referral-tree";
 import {
   Table,
   TableBody,
@@ -129,8 +130,8 @@ export default function ReferralsPage() {
                       </div>
                       <h3 className="font-medium mb-2">3. Earn Rewards</h3>
                       <p className="text-sm text-gray-600">
-                        Earn 300 Sh for your first referral and 150 Sh for each
-                        additional one.
+                        Earn 300 Sh for your first referral, 270 Sh for each
+                        additional one, and 150 Sh from level 2 referrals.
                       </p>
                     </div>
                   </div>
@@ -151,6 +152,9 @@ export default function ReferralsPage() {
                       <Users className="h-4 w-4 mr-1 text-blue-500" />
                       Level 1 Referrals
                     </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Earn 300 Sh for first, 150 Sh each additional
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -166,6 +170,9 @@ export default function ReferralsPage() {
                       <Users className="h-4 w-4 mr-1 text-purple-500" />
                       Level 2 Referrals
                     </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Earn when your referrals refer others
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -173,7 +180,7 @@ export default function ReferralsPage() {
                   <CardHeader className="pb-2">
                     <CardDescription>Referral Earnings</CardDescription>
                     <CardTitle className="text-2xl">
-                      {stats.accountBalance} Sh
+                      {stats.totalReferralEarnings} Sh
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -192,11 +199,18 @@ export default function ReferralsPage() {
                         <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
                         <path d="M12 18V6" />
                       </svg>
-                      Total Commission
+                      Total Commission Earned
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      From all referral levels (Available:{" "}
+                      {stats.accountBalance} Sh)
                     </div>
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Enhanced Referral Tree Component */}
+              <ReferralTree stats={stats} />
 
               {/* Referral Link Notice */}
               <Card>

@@ -6,7 +6,8 @@ export const endpoints = {
     earnings: '/api/user/earnings',
     withdrawals: '/api/user/withdrawals',
     activate: '/api/user/activate',
-    withdraw: 'api/user/withdraw',
+    withdraw: '/api/user/withdraw',
+    referrals: '/api/user/referrals',
   },
   
   // Task endpoints
@@ -21,16 +22,17 @@ export const endpoints = {
     list: '/api/withdrawals',
   },
   
-  // Authentication endpoints (if you have them)
+  // Authentication endpoints
   auth: {
     login: '/api/auth/login',
     register: '/api/auth/register',
     logout: '/api/auth/logout',
   },
   
-  // M-Pesa endpoints (if you expose them)
+  // M-Pesa endpoints
   mpesa: {
     callback: '/api/mpesa/callback',
+    b2cCallback: '/api/mpesa/b2c/callback',
   },
 };
 
@@ -39,6 +41,7 @@ export const getApiUrl = (endpoint: string): string => {
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   return `${baseUrl}${endpoint}`;
 };
+
 export const apiRequest = async (method: string, url: string, data?: any) => {
   const response = await fetch(url, {
     method,

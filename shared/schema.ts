@@ -11,6 +11,11 @@ export const users = pgTable("users", {
   withdrawalPhone: text("withdrawal_phone"),
   isActivated: boolean("is_activated").default(false).notNull(),
   accountBalance: integer("account_balance").default(0).notNull(),
+  // Task balance columns - separate tracking for each source
+  adsBalance: integer("ads_balance").default(0).notNull(),
+  youtubeBalance: integer("youtube_balance").default(0).notNull(),
+  tiktokBalance: integer("tiktok_balance").default(0).notNull(),
+  instagramBalance: integer("instagram_balance").default(0).notNull(),
   referralCode: text("referral_code").notNull().unique(),
   referrerId: integer("referrer_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -120,15 +125,19 @@ export const withdrawals = pgTable("withdrawals", {
   source: text("source").notNull(), // 'referral', 'ad', 'tiktok', 'youtube', 'instagram'
   amount: integer("amount").notNull(),
   fee: integer("fee").notNull(),
-  status: text("status").notNull(), // 'pending', 'completed', 'failed'
+  status: text("status").notNull(), // 'pending', 'processing', 'completed', 'failed'
   createdAt: timestamp("created_at").defaultNow().notNull(),
   processedAt: timestamp("processed_at"),
+  completedAt: timestamp("completed_at"),
   paymentMethod: text("payment_method").notNull(),
   phoneNumber: text("phone_number"),
+  // Enhanced M-Pesa B2C fields
+  mpesaTransactionId: text("mpesa_transaction_id"),
   mpesaConversationId: text("mpesa_conversation_id"),
   mpesaOriginatorConversationId: text("mpesa_originator_conversation_id"),
+  resultCode: integer("result_code"),
+  resultDescription: text("result_description"),
   failureReason: text("failure_reason"),
-  completedAt: timestamp("completed_at"),
 });
 
 export const insertWithdrawalSchema = createInsertSchema(withdrawals).pick({
@@ -139,8 +148,11 @@ export const insertWithdrawalSchema = createInsertSchema(withdrawals).pick({
   status: true,
   paymentMethod: true,
   phoneNumber: true,
+  mpesaTransactionId: true,
   mpesaConversationId: true,
   mpesaOriginatorConversationId: true,
+  resultCode: true,
+  resultDescription: true,
   failureReason: true,
   completedAt: true,
 });
@@ -179,13 +191,28 @@ export type Earning = typeof earnings.$inferSelect;
 export type InsertWithdrawal = z.infer<typeof insertWithdrawalSchema>;
 export type Withdrawal = typeof withdrawals.$inferSelect;
 
+// Enhanced withdrawal response type with computed properties
+export type EnhancedWithdrawal = Withdrawal & {
+  statusDescription: string;
+  canRetry: boolean;
+  isProcessing: boolean;
+  isCompleted: boolean;
+};
+
 export type UserStats = {
   accountBalance: number;
   totalProfit: number;
+  totalReferralEarnings: number;
   directReferrals: number;
   secondaryReferrals: number;
   referralLink: string;
   taskEarnings: {
+    ads: number;
+    tiktok: number;
+    youtube: number;
+    instagram: number;
+  };
+  taskBalances: {
     ads: number;
     tiktok: number;
     youtube: number;

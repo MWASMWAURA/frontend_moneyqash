@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 
 // Fetcher with credentials for authenticated endpoints
 const fetchWithCredentials = (url: string) =>
-  fetch(url, { credentials: 'include' }).then(res => {
-    if (!res.ok) throw new Error('Network response was not ok');
+  fetch(url, { credentials: "include" }).then((res) => {
+    if (!res.ok) throw new Error("Network response was not ok");
     return res.json();
   });
 import { useAuth } from "@/hooks/use-auth";
@@ -13,12 +13,19 @@ import MobileNav from "@/components/ui/mobile-nav";
 import WithdrawModal from "@/components/withdraw-modal";
 import { Loader2, TrendingUp, DollarSign, Clock } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserStats, Earning, Withdrawal } from "@shared/schema";
 import { format } from "date-fns";
 import { endpoints } from "@/lib/api";
+import EarningsSummary from "@/components/earnings-summary";
 
 export default function EarningsPage() {
   const { user } = useAuth();
@@ -26,31 +33,32 @@ export default function EarningsPage() {
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
   const [withdrawSource, setWithdrawSource] = useState<string>("");
   const [withdrawAmount, setWithdrawAmount] = useState<number>(0);
+  const [earningsFilter, setEarningsFilter] = useState<string>("all");
 
   // Handle withdraw modal
   const handleWithdraw = async () => {
     if (!withdrawSource || withdrawAmount <= 0) return;
     try {
       const response = await fetch(endpoints.user.withdraw, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache'
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
         },
         body: JSON.stringify({
           source: withdrawSource,
-          amount: withdrawAmount
-        })
+          amount: withdrawAmount,
+        }),
       });
       if (!response.ok) {
-        throw new Error('Withdrawal failed');
+        throw new Error("Withdrawal failed");
       }
       setWithdrawModalOpen(false);
       // Refresh data after successful withdrawal
       window.location.reload();
     } catch (error) {
-      console.error('Error withdrawing:', error);
+      console.error("Error withdrawing:", error);
     }
   };
 
@@ -60,14 +68,35 @@ export default function EarningsPage() {
     queryFn: () => fetchWithCredentials("/api/user/stats"),
   });
 
-  // Get earnings history
-  const { data: earnings = [], isLoading: earningsLoading } = useQuery<Earning[]>({
+  // Get earnings history - Updated to handle new structured response
+  const { data: earningsData, isLoading: earningsLoading } = useQuery<{
+    earnings: {
+      referral: Earning[];
+      ads: Earning[];
+      youtube: Earning[];
+      tiktok: Earning[];
+      instagram: Earning[];
+      all: Earning[];
+    };
+    totals: {
+      referral: number;
+      ads: number;
+      youtube: number;
+      tiktok: number;
+      instagram: number;
+      total: number;
+    };
+  }>({
     queryKey: ["/api/user/earnings"],
     queryFn: () => fetchWithCredentials("/api/user/earnings"),
   });
 
+  const earnings = earningsData?.earnings.all || [];
+
   // Get withdrawals history
-  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<Withdrawal[]>({
+  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<
+    Withdrawal[]
+  >({
     queryKey: ["/api/user/withdrawals"],
     queryFn: () => fetchWithCredentials("/api/user/withdrawals"),
   });
@@ -103,7 +132,7 @@ export default function EarningsPage() {
 
   // Format date for display
   const formatDate = (date: Date) => {
-    return format(new Date(date), 'MMM dd, yyyy');
+    return format(new Date(date), "MMM dd, yyyy");
   };
 
   return (
@@ -130,7 +159,9 @@ export default function EarningsPage() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardDescription>Account Balance</CardDescription>
-                    <CardTitle className="text-2xl">{stats.accountBalance} Sh</CardTitle>
+                    <CardTitle className="text-2xl">
+                      {stats.accountBalance} Sh
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-muted-foreground flex items-center">
@@ -143,7 +174,9 @@ export default function EarningsPage() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardDescription>Ads Earnings</CardDescription>
-                    <CardTitle className="text-2xl">{stats.taskEarnings.ads} Sh</CardTitle>
+                    <CardTitle className="text-2xl">
+                      {stats.taskEarnings.ads} Sh
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-muted-foreground flex items-center">
@@ -157,7 +190,10 @@ export default function EarningsPage() {
                   <CardHeader className="pb-2">
                     <CardDescription>Social Media Earnings</CardDescription>
                     <CardTitle className="text-2xl">
-                      {stats.taskEarnings.tiktok + stats.taskEarnings.youtube + stats.taskEarnings.instagram} Sh
+                      {stats.taskEarnings.tiktok +
+                        stats.taskEarnings.youtube +
+                        stats.taskEarnings.instagram}{" "}
+                      Sh
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -171,7 +207,9 @@ export default function EarningsPage() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardDescription>Total Profit</CardDescription>
-                    <CardTitle className="text-2xl">{stats.totalProfit} Sh</CardTitle>
+                    <CardTitle className="text-2xl">
+                      {stats.totalProfit} Sh
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-muted-foreground flex items-center">
@@ -184,29 +222,37 @@ export default function EarningsPage() {
 
               {/* Withdrawal Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Button 
-                  onClick={() => openWithdrawModal("referral", stats.accountBalance)}
+                <Button
+                  onClick={() =>
+                    openWithdrawModal("referral", stats.accountBalance)
+                  }
                   disabled={stats.accountBalance < 600}
                   className="w-full bg-green-600 hover:bg-green-700"
                 >
                   Withdraw Referral Earnings
                 </Button>
-                <Button 
-                  onClick={() => openWithdrawModal("ad", stats.taskEarnings.ads)}
+                <Button
+                  onClick={() =>
+                    openWithdrawModal("ad", stats.taskEarnings.ads)
+                  }
                   disabled={stats.taskEarnings.ads < 600}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
                   Withdraw Ad Earnings
                 </Button>
-                <Button 
-                  onClick={() => openWithdrawModal("tiktok", stats.taskEarnings.tiktok)}
+                <Button
+                  onClick={() =>
+                    openWithdrawModal("tiktok", stats.taskEarnings.tiktok)
+                  }
                   disabled={stats.taskEarnings.tiktok < 600}
                   className="w-full bg-pink-600 hover:bg-pink-700"
                 >
                   Withdraw TikTok Earnings
                 </Button>
-                <Button 
-                  onClick={() => openWithdrawModal("youtube", stats.taskEarnings.youtube)}
+                <Button
+                  onClick={() =>
+                    openWithdrawModal("youtube", stats.taskEarnings.youtube)
+                  }
                   disabled={stats.taskEarnings.youtube < 600}
                   className="w-full bg-red-600 hover:bg-red-700"
                 >
@@ -218,55 +264,168 @@ export default function EarningsPage() {
               <Alert>
                 <AlertTitle>Withdrawal Information</AlertTitle>
                 <AlertDescription>
-                  Minimum withdrawal amount is 600 Shillings. A fee of 50 Shillings is charged for each withdrawal.
+                  Minimum withdrawal amount is 600 Shillings. A fee of 50
+                  Shillings is charged for each withdrawal.
                 </AlertDescription>
               </Alert>
+
+              {/* Enhanced Earnings Summary */}
+              <EarningsSummary
+                earnings={earnings}
+                earningsData={earningsData}
+                stats={stats}
+              />
 
               {/* Tabs for Transaction History */}
               <Tabs defaultValue="earnings" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="earnings">Earnings History</TabsTrigger>
-                  <TabsTrigger value="withdrawals">Withdrawals History</TabsTrigger>
+                  <TabsTrigger value="withdrawals">
+                    Withdrawals History
+                  </TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="earnings" className="mt-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Earnings History</CardTitle>
-                      <CardDescription>
-                        Your complete history of earnings from all sources
-                      </CardDescription>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                          <CardTitle>Earnings History</CardTitle>
+                          <CardDescription>
+                            Your complete history of earnings from all sources
+                          </CardDescription>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <label className="text-sm font-medium">Filter:</label>
+                          <select
+                            value={earningsFilter}
+                            onChange={(e) => setEarningsFilter(e.target.value)}
+                            className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                          >
+                            <option value="all">All Earnings</option>
+                            <option value="referral">Referral Only</option>
+                            <option value="tasks">Tasks Only</option>
+                            <option value="ads">Ads Only</option>
+                            <option value="youtube">YouTube Only</option>
+                            <option value="tiktok">TikTok Only</option>
+                            <option value="instagram">Instagram Only</option>
+                          </select>
+                        </div>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       {Array.isArray(earnings) && earnings.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
-                          You haven't earned any money yet. Complete tasks or refer users to earn.
+                          <div className="bg-gray-100 p-6 rounded-full mb-4 mx-auto w-16 h-16 flex items-center justify-center">
+                            <TrendingUp className="w-8 h-8 text-gray-400" />
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-700 mb-2">
+                            No Earnings Yet
+                          </h3>
+                          <p>
+                            You haven't earned any money yet. Complete tasks or
+                            refer users to start earning!
+                          </p>
                         </div>
                       ) : (
                         <div className="overflow-x-auto">
                           <table className="w-full">
                             <thead>
-                              <tr className="border-b">
-                                <th className="text-left py-3 px-2">Date</th>
-                                <th className="text-left py-3 px-2">Source</th>
-                                <th className="text-left py-3 px-2">Description</th>
-                                <th className="text-right py-3 px-2">Amount</th>
+                              <tr className="border-b bg-gray-50">
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Date
+                                </th>
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Source
+                                </th>
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Description
+                                </th>
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Type
+                                </th>
+                                <th className="text-right py-3 px-2 font-semibold">
+                                  Amount
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
-                              {Array.isArray(earnings) && earnings.map((earning) => (
-                                <tr key={earning.id} className="border-b hover:bg-gray-50">
-                                  <td className="py-3 px-2">
-                                    <div className="flex items-center">
-                                      <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                                      {formatDate(earning.createdAt)}
-                                    </div>
-                                  </td>
-                                  <td className="py-3 px-2 capitalize">{earning.source}</td>
-                                  <td className="py-3 px-2">{earning.description || `Earnings from ${earning.source}`}</td>
-                                  <td className="py-3 px-2 text-right font-medium text-green-600">+{earning.amount} Sh</td>
-                                </tr>
-                              ))}
+                              {Array.isArray(earnings) &&
+                                earnings
+                                  .filter((earning) => {
+                                    if (earningsFilter === "all") return true;
+                                    if (earningsFilter === "tasks")
+                                      return earning.source !== "referral";
+                                    if (earningsFilter === "ads")
+                                      return earning.source === "ad";
+                                    return earning.source === earningsFilter;
+                                  })
+                                  .map((earning) => {
+                                    const isReferral =
+                                      earning.source === "referral";
+                                    const sourceIcon = isReferral
+                                      ? "ri-user-add-line"
+                                      : "ri-play-circle-line";
+                                    const sourceColor = isReferral
+                                      ? "text-purple-600"
+                                      : "text-blue-600";
+                                    const sourceBadge = isReferral
+                                      ? "bg-purple-100 text-purple-800"
+                                      : "bg-blue-100 text-blue-800";
+
+                                    return (
+                                      <tr
+                                        key={earning.id}
+                                        className="border-b hover:bg-gray-50"
+                                      >
+                                        <td className="py-3 px-2">
+                                          <div className="flex items-center">
+                                            <Clock className="h-4 w-4 mr-2 text-gray-500" />
+                                            <span className="text-sm">
+                                              {formatDate(earning.createdAt)}
+                                            </span>
+                                          </div>
+                                        </td>
+                                        <td className="py-3 px-2">
+                                          <div className="flex items-center">
+                                            <i
+                                              className={`${sourceIcon} ${sourceColor} mr-2`}
+                                            ></i>
+                                            <span className="capitalize font-medium">
+                                              {earning.source === "ad"
+                                                ? "Ads"
+                                                : earning.source}
+                                            </span>
+                                          </div>
+                                        </td>
+                                        <td className="py-3 px-2">
+                                          <span className="text-sm text-gray-600">
+                                            {earning.description ||
+                                              (isReferral
+                                                ? "Referral Commission"
+                                                : earning.source === "ad"
+                                                ? "Advertisement Task Completed"
+                                                : `${
+                                                    earning.source
+                                                      .charAt(0)
+                                                      .toUpperCase() +
+                                                    earning.source.slice(1)
+                                                  } Task Completed`)}
+                                          </span>
+                                        </td>
+                                        <td className="py-3 px-2">
+                                          <span
+                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${sourceBadge}`}
+                                          >
+                                            {isReferral ? "Referral" : "Task"}
+                                          </span>
+                                        </td>
+                                        <td className="py-3 px-2 text-right font-semibold text-green-600">
+                                          +{earning.amount} Sh
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
                             </tbody>
                           </table>
                         </div>
@@ -274,59 +433,97 @@ export default function EarningsPage() {
                     </CardContent>
                   </Card>
                 </TabsContent>
-                
+
                 <TabsContent value="withdrawals" className="mt-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Withdrawals History</CardTitle>
+                      <CardTitle>Withdrawal History</CardTitle>
                       <CardDescription>
-                        Your complete history of withdrawals to payment methods
+                        Track all your withdrawal requests and their status
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {Array.isArray(withdrawals) && withdrawals.length === 0 ? (
+                      {withdrawals.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
-                          You haven't made any withdrawals yet. Accumulate at least 600 Shillings to withdraw.
+                          <div className="bg-gray-100 p-6 rounded-full mb-4 mx-auto w-16 h-16 flex items-center justify-center">
+                            <DollarSign className="w-8 h-8 text-gray-400" />
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-700 mb-2">
+                            No Withdrawals Yet
+                          </h3>
+                          <p>
+                            You haven't made any withdrawal requests yet. Start
+                            earning and withdraw when you reach the minimum
+                            amount!
+                          </p>
                         </div>
                       ) : (
                         <div className="overflow-x-auto">
                           <table className="w-full">
                             <thead>
-                              <tr className="border-b">
-                                <th className="text-left py-3 px-2">Date</th>
-                                <th className="text-left py-3 px-2">Source</th>
-                                <th className="text-left py-3 px-2">Method</th>
-                                <th className="text-left py-3 px-2">Status</th>
-                                <th className="text-right py-3 px-2">Amount</th>
-                                <th className="text-right py-3 px-2">Fee</th>
-                                <th className="text-right py-3 px-2">Net</th>
+                              <tr className="border-b bg-gray-50">
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Date
+                                </th>
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Amount
+                                </th>
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Source
+                                </th>
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Status
+                                </th>
+                                <th className="text-left py-3 px-2 font-semibold">
+                                  Phone
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
-                              {Array.isArray(withdrawals) && withdrawals.map((withdrawal) => (
-                                <tr key={withdrawal.id} className="border-b hover:bg-gray-50">
+                              {withdrawals.map((withdrawal: any) => (
+                                <tr
+                                  key={withdrawal.id}
+                                  className="border-b hover:bg-gray-50"
+                                >
                                   <td className="py-3 px-2">
                                     <div className="flex items-center">
                                       <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                                      {formatDate(withdrawal.createdAt)}
+                                      <span className="text-sm">
+                                        {formatDate(withdrawal.createdAt)}
+                                      </span>
                                     </div>
                                   </td>
-                                  <td className="py-3 px-2 capitalize">{withdrawal.source}</td>
-                                  <td className="py-3 px-2">{withdrawal.paymentMethod}</td>
                                   <td className="py-3 px-2">
-                                    <span className={`px-2 py-1 rounded-full text-xs ${
-                                      withdrawal.status === 'completed' 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : withdrawal.status === 'pending'
-                                          ? 'bg-yellow-100 text-yellow-800'
-                                          : 'bg-red-100 text-red-800'
-                                    }`}>
-                                      {withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
+                                    <span className="font-semibold">
+                                      {withdrawal.amount} Sh
                                     </span>
                                   </td>
-                                  <td className="py-3 px-2 text-right">{withdrawal.amount} Sh</td>
-                                  <td className="py-3 px-2 text-right text-red-600">-{withdrawal.fee} Sh</td>
-                                  <td className="py-3 px-2 text-right font-medium">{withdrawal.amount - withdrawal.fee} Sh</td>
+                                  <td className="py-3 px-2">
+                                    <span className="capitalize">
+                                      {withdrawal.source === "ad"
+                                        ? "Ads"
+                                        : withdrawal.source}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-2">
+                                    <span
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                        withdrawal.status === "completed"
+                                          ? "bg-green-100 text-green-800"
+                                          : withdrawal.status === "processing"
+                                          ? "bg-yellow-100 text-yellow-800"
+                                          : withdrawal.status === "failed"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-gray-100 text-gray-800"
+                                      }`}
+                                    >
+                                      {withdrawal.statusDescription ||
+                                        withdrawal.status}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-2 text-sm text-gray-600">
+                                    {withdrawal.phoneNumber}
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -342,7 +539,7 @@ export default function EarningsPage() {
         </div>
       </div>
 
-      {/* Withdrawal Modal */}
+      {/* Withdraw Modal */}
       <WithdrawModal
         isOpen={withdrawModalOpen}
         onClose={() => setWithdrawModalOpen(false)}

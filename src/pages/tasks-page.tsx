@@ -131,9 +131,11 @@ export default function TasksPage() {
     },
   });
 
-  const openWithdrawModal = (source: string, amount: number) => {
+  const openWithdrawModal = (source: string, amount?: number) => {
+    // Use task balance if amount not provided
+    const withdrawableAmount = amount || getTaskBalanceByType(source);
     setWithdrawSource(source);
-    setWithdrawAmount(amount);
+    setWithdrawAmount(withdrawableAmount);
     setWithdrawModalOpen(true);
   };
 
@@ -228,6 +230,24 @@ export default function TasksPage() {
     }
   };
 
+  // New function to get task balances (withdrawable amounts)
+  const getTaskBalanceByType = (type: string): number => {
+    if (!stats?.taskBalances) return 0;
+
+    switch (type) {
+      case "ad":
+        return stats.taskBalances.ads;
+      case "tiktok":
+        return stats.taskBalances.tiktok;
+      case "youtube":
+        return stats.taskBalances.youtube;
+      case "instagram":
+        return stats.taskBalances.instagram;
+      default:
+        return 0;
+    }
+  };
+
   const getTabTitle = (type: string): string => {
     switch (type) {
       case "ads":
@@ -315,6 +335,62 @@ export default function TasksPage() {
             <div className="space-y-6">
               <h1 className="text-2xl font-bold">Tasks</h1>
 
+              {/* Enhanced Task Earnings Summary */}
+              {stats && (
+                <Card className="mb-6">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <i className="ri-wallet-3-line mr-2 text-green-600"></i>
+                      Task Earnings Summary
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center p-3 bg-blue-50 rounded-lg">
+                        <i className="ri-advertisement-line text-blue-500 text-2xl mb-2"></i>
+                        <p className="text-sm text-gray-600">Video Ads</p>
+                        <p className="font-bold text-blue-700">
+                          {stats.taskEarnings.ads} Sh
+                        </p>
+                        <p className="text-xs text-green-600">
+                          Available: {stats.taskBalances?.ads || 0} Sh
+                        </p>
+                      </div>
+                      <div className="text-center p-3 bg-red-50 rounded-lg">
+                        <i className="ri-youtube-line text-red-500 text-2xl mb-2"></i>
+                        <p className="text-sm text-gray-600">YouTube</p>
+                        <p className="font-bold text-red-700">
+                          {stats.taskEarnings.youtube} Sh
+                        </p>
+                        <p className="text-xs text-green-600">
+                          Available: {stats.taskBalances?.youtube || 0} Sh
+                        </p>
+                      </div>
+                      <div className="text-center p-3 bg-pink-50 rounded-lg">
+                        <i className="ri-tiktok-line text-pink-500 text-2xl mb-2"></i>
+                        <p className="text-sm text-gray-600">TikTok</p>
+                        <p className="font-bold text-pink-700">
+                          {stats.taskEarnings.tiktok} Sh
+                        </p>
+                        <p className="text-xs text-green-600">
+                          Available: {stats.taskBalances?.tiktok || 0} Sh
+                        </p>
+                      </div>
+                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                        <i className="ri-instagram-line text-purple-500 text-2xl mb-2"></i>
+                        <p className="text-sm text-gray-600">Instagram</p>
+                        <p className="font-bold text-purple-700">
+                          {stats.taskEarnings.instagram} Sh
+                        </p>
+                        <p className="text-xs text-green-600">
+                          Available: {stats.taskBalances?.instagram || 0} Sh
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <Card>
                 <CardHeader>
                   <CardTitle>Complete Tasks to Earn</CardTitle>
@@ -367,12 +443,33 @@ export default function TasksPage() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium text-gray-500">
-                            Your Earnings
-                          </p>
-                          <p className="text-lg font-bold text-gray-900">
-                            KSh {getEarningsByType("ad")}
-                          </p>
+                          <div className="space-y-1">
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">
+                                Total Earnings
+                              </p>
+                              <p className="text-sm font-bold text-blue-600">
+                                KSh {getEarningsByType("ad")}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">
+                                Available Balance
+                              </p>
+                              <p className="text-lg font-bold text-green-600">
+                                KSh {getTaskBalanceByType("ad")}
+                              </p>
+                            </div>
+                            {getTaskBalanceByType("ad") >= 600 && (
+                              <Button
+                                onClick={() => openWithdrawModal("ad")}
+                                className="text-xs py-1 px-2 bg-blue-600 hover:bg-blue-700"
+                                size="sm"
+                              >
+                                Withdraw
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -455,19 +552,18 @@ export default function TasksPage() {
 
                       <div className="text-center mt-6">
                         <Button
-                          onClick={() =>
-                            openWithdrawModal("ad", getEarningsByType("ad"))
-                          }
+                          onClick={() => openWithdrawModal("ad")}
                           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                          disabled={getEarningsByType("ad") < 600}
+                          disabled={getTaskBalanceByType("ad") < 600}
                         >
                           <i className="ri-bank-card-line mr-2"></i>
-                          Withdraw Ad Earnings
+                          Withdraw Ad Balance (KSh {getTaskBalanceByType("ad")})
                         </Button>
-                        {getEarningsByType("ad") < 600 && (
+                        {getTaskBalanceByType("ad") < 600 && (
                           <p className="text-xs text-orange-600 mt-2">
                             <i className="ri-information-line"></i> Minimum
-                            withdrawal amount: KSh 600
+                            withdrawal amount: KSh 600. Available: KSh{" "}
+                            {getTaskBalanceByType("ad")}
                           </p>
                         )}
                       </div>
@@ -481,16 +577,37 @@ export default function TasksPage() {
                             TikTok Videos
                           </h4>
                           <p className="text-sm text-gray-500">
-                            Earn KSh 5 per TikTok video watched
+                            Earn KSh 15 per video watched
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium text-gray-500">
-                            Your Earnings
-                          </p>
-                          <p className="text-lg font-bold text-gray-900">
-                            KSh {getEarningsByType("tiktok")}
-                          </p>
+                          <div className="space-y-1">
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">
+                                Total Earnings
+                              </p>
+                              <p className="text-sm font-bold text-pink-600">
+                                KSh {getEarningsByType("tiktok")}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">
+                                Available Balance
+                              </p>
+                              <p className="text-lg font-bold text-green-600">
+                                KSh {getTaskBalanceByType("tiktok")}
+                              </p>
+                            </div>
+                            {getTaskBalanceByType("tiktok") >= 600 && (
+                              <Button
+                                onClick={() => openWithdrawModal("tiktok")}
+                                className="text-xs py-1 px-2 bg-pink-600 hover:bg-pink-700"
+                                size="sm"
+                              >
+                                Withdraw
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -570,22 +687,19 @@ export default function TasksPage() {
 
                       <div className="text-center mt-6">
                         <Button
-                          onClick={() =>
-                            openWithdrawModal(
-                              "tiktok",
-                              getEarningsByType("tiktok")
-                            )
-                          }
+                          onClick={() => openWithdrawModal("tiktok")}
                           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                          disabled={getEarningsByType("tiktok") < 600}
+                          disabled={getTaskBalanceByType("tiktok") < 600}
                         >
                           <i className="ri-bank-card-line mr-2"></i>
-                          Withdraw TikTok Earnings
+                          Withdraw TikTok Balance (KSh{" "}
+                          {getTaskBalanceByType("tiktok")})
                         </Button>
-                        {getEarningsByType("tiktok") < 600 && (
+                        {getTaskBalanceByType("tiktok") < 600 && (
                           <p className="text-xs text-orange-600 mt-2">
                             <i className="ri-information-line"></i> Minimum
-                            withdrawal amount: KSh 600
+                            withdrawal amount: KSh 600. Available: KSh{" "}
+                            {getTaskBalanceByType("tiktok")}
                           </p>
                         )}
                       </div>
@@ -599,16 +713,37 @@ export default function TasksPage() {
                             YouTube Videos
                           </h4>
                           <p className="text-sm text-gray-500">
-                            Earn KSh 15 per YouTube video watched
+                            Earn KSh 20 per video watched
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium text-gray-500">
-                            Your Earnings
-                          </p>
-                          <p className="text-lg font-bold text-gray-900">
-                            KSh {getEarningsByType("youtube")}
-                          </p>
+                          <div className="space-y-1">
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">
+                                Total Earnings
+                              </p>
+                              <p className="text-sm font-bold text-red-600">
+                                KSh {getEarningsByType("youtube")}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">
+                                Available Balance
+                              </p>
+                              <p className="text-lg font-bold text-green-600">
+                                KSh {getTaskBalanceByType("youtube")}
+                              </p>
+                            </div>
+                            {getTaskBalanceByType("youtube") >= 600 && (
+                              <Button
+                                onClick={() => openWithdrawModal("youtube")}
+                                className="text-xs py-1 px-2 bg-red-600 hover:bg-red-700"
+                                size="sm"
+                              >
+                                Withdraw
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -689,22 +824,19 @@ export default function TasksPage() {
 
                       <div className="text-center mt-6">
                         <Button
-                          onClick={() =>
-                            openWithdrawModal(
-                              "youtube",
-                              getEarningsByType("youtube")
-                            )
-                          }
+                          onClick={() => openWithdrawModal("youtube")}
                           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                          disabled={getEarningsByType("youtube") < 600}
+                          disabled={getTaskBalanceByType("youtube") < 600}
                         >
                           <i className="ri-bank-card-line mr-2"></i>
-                          Withdraw YouTube Earnings
+                          Withdraw YouTube Balance (KSh{" "}
+                          {getTaskBalanceByType("youtube")})
                         </Button>
-                        {getEarningsByType("youtube") < 600 && (
+                        {getTaskBalanceByType("youtube") < 600 && (
                           <p className="text-xs text-orange-600 mt-2">
                             <i className="ri-information-line"></i> Minimum
-                            withdrawal amount: KSh 600
+                            withdrawal amount: KSh 600. Available: KSh{" "}
+                            {getTaskBalanceByType("youtube")}
                           </p>
                         )}
                       </div>
@@ -715,19 +847,40 @@ export default function TasksPage() {
                       <div className="flex justify-between items-center mb-4">
                         <div>
                           <h4 className="text-lg font-medium text-gray-900">
-                            Instagram Reels
+                            Instagram Content
                           </h4>
                           <p className="text-sm text-gray-500">
-                            Earn KSh 7 per Instagram reel watched
+                            Earn KSh 12 per content watched
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium text-gray-500">
-                            Your Earnings
-                          </p>
-                          <p className="text-lg font-bold text-gray-900">
-                            KSh {getEarningsByType("instagram")}
-                          </p>
+                          <div className="space-y-1">
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">
+                                Total Earnings
+                              </p>
+                              <p className="text-sm font-bold text-purple-600">
+                                KSh {getEarningsByType("instagram")}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">
+                                Available Balance
+                              </p>
+                              <p className="text-lg font-bold text-green-600">
+                                KSh {getTaskBalanceByType("instagram")}
+                              </p>
+                            </div>
+                            {getTaskBalanceByType("instagram") >= 600 && (
+                              <Button
+                                onClick={() => openWithdrawModal("instagram")}
+                                className="text-xs py-1 px-2 bg-purple-600 hover:bg-purple-700"
+                                size="sm"
+                              >
+                                Withdraw
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -807,22 +960,19 @@ export default function TasksPage() {
 
                       <div className="text-center mt-6">
                         <Button
-                          onClick={() =>
-                            openWithdrawModal(
-                              "instagram",
-                              getEarningsByType("instagram")
-                            )
-                          }
+                          onClick={() => openWithdrawModal("instagram")}
                           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                          disabled={getEarningsByType("instagram") < 600}
+                          disabled={getTaskBalanceByType("instagram") < 600}
                         >
                           <i className="ri-bank-card-line mr-2"></i>
-                          Withdraw Instagram Earnings
+                          Withdraw Instagram Balance (KSh{" "}
+                          {getTaskBalanceByType("instagram")})
                         </Button>
-                        {getEarningsByType("instagram") < 600 && (
+                        {getTaskBalanceByType("instagram") < 600 && (
                           <p className="text-xs text-orange-600 mt-2">
                             <i className="ri-information-line"></i> Minimum
-                            withdrawal amount: KSh 600
+                            withdrawal amount: KSh 600. Available: KSh{" "}
+                            {getTaskBalanceByType("instagram")}
                           </p>
                         )}
                       </div>
