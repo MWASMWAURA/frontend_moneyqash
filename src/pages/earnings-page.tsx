@@ -63,13 +63,23 @@ export default function EarningsPage() {
   };
 
   // Get user stats
-  const { data: stats, isLoading: statsLoading } = useQuery<UserStats>({
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useQuery<UserStats>({
     queryKey: ["/api/user/stats"],
     queryFn: () => fetchWithCredentials("/api/user/stats"),
+    retry: 3,
+    staleTime: 30000,
   });
 
   // Get earnings history - Updated to handle new structured response
-  const { data: earningsData, isLoading: earningsLoading } = useQuery<{
+  const {
+    data: earningsData,
+    isLoading: earningsLoading,
+    error: earningsError,
+  } = useQuery<{
     earnings: {
       referral: Earning[];
       ads: Earning[];
@@ -89,37 +99,62 @@ export default function EarningsPage() {
   }>({
     queryKey: ["/api/user/earnings"],
     queryFn: () => fetchWithCredentials("/api/user/earnings"),
+    retry: 3,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
-  const earnings = earningsData?.earnings.all || [];
+  const earnings = earningsData?.earnings?.all || [];
 
   // Get withdrawals history
-  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<
-    Withdrawal[]
-  >({
+  const {
+    data: withdrawals = [],
+    isLoading: withdrawalsLoading,
+    error: withdrawalsError,
+  } = useQuery<Withdrawal[]>({
     queryKey: ["/api/user/withdrawals"],
     queryFn: () => fetchWithCredentials("/api/user/withdrawals"),
+    retry: 3,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const isLoading = statsLoading || earningsLoading || withdrawalsLoading;
+  const hasError = statsError || earningsError || withdrawalsError;
 
-  if (!stats) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (hasError) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
         <Alert variant="destructive" className="max-w-md">
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Error Loading Data</AlertTitle>
           <AlertDescription>
-            Failed to load user stats. Please try again later.
+            {statsError?.message ||
+              earningsError?.message ||
+              withdrawalsError?.message ||
+              "Failed to load earnings data. Please try again later."}
           </AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  if (isLoading) {
+  if (!stats) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Alert variant="destructive" className="max-w-md">
+          <AlertTitle>No Data Available</AlertTitle>
+          <AlertDescription>
+            Failed to load user stats. Please try again later.
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -339,7 +374,7 @@ export default function EarningsPage() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      {Array.isArray(earnings) && earnings.length === 0 ? (
+                      {!earnings || earnings.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
                           <div className="bg-gray-100 p-6 rounded-full mb-4 mx-auto w-16 h-16 flex items-center justify-center">
                             <TrendingUp className="w-8 h-8 text-gray-400" />
@@ -351,6 +386,26 @@ export default function EarningsPage() {
                             You haven't earned any money yet. Complete tasks or
                             refer users to start earning!
                           </p>
+                          {/* Debug info */}
+                          <div className="mt-4 text-xs text-gray-400 space-y-1">
+                            <div>
+                              Debug: Earnings length: {earnings?.length || 0}
+                            </div>
+                            <div>
+                              EarningsData:{" "}
+                              {earningsData ? "Present" : "Missing"}
+                            </div>
+                            {earningsData && (
+                              <div>
+                                All earnings:{" "}
+                                {JSON.stringify(
+                                  earningsData.earnings?.all?.slice(0, 2) || []
+                                )}
+                              </div>
+                            )}
+                            <div>Stats loaded: {stats ? "Yes" : "No"}</div>
+                            <div>User: {user?.username || "Not logged in"}</div>
+                          </div>
                         </div>
                       ) : (
                         <div className="overflow-x-auto">

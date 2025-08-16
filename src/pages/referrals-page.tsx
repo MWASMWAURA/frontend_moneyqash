@@ -37,24 +37,51 @@ export default function ReferralsPage() {
       return res.json();
     });
 
-  const { data: stats, isLoading: statsLoading } = useQuery<UserStats>({
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useQuery<UserStats>({
     queryKey: ["/api/user/stats"],
     queryFn: () => fetchWithCredentials("/api/user/stats"),
+    retry: 3,
+    staleTime: 30000,
   });
 
-  const { data: referrals = [], isLoading: referralsLoading } = useQuery<
-    Referral[]
-  >({
+  const {
+    data: referrals = [],
+    isLoading: referralsLoading,
+    error: referralsError,
+  } = useQuery<Referral[]>({
     queryKey: ["/api/user/referrals"],
     queryFn: () => fetchWithCredentials("/api/user/referrals"),
+    retry: 3,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const isLoading = statsLoading || referralsLoading;
+  const hasError = statsError || referralsError;
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertTitle>Error Loading Data</AlertTitle>
+          <AlertDescription>
+            {statsError?.message ||
+              referralsError?.message ||
+              "Failed to load referrals data"}
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -86,6 +113,17 @@ export default function ReferralsPage() {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h1 className="text-2xl font-bold">Referral Program</h1>
+                {/* Debug Info */}
+                {process.env.NODE_ENV === "development" && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-xs">
+                    <div>Stats loaded: {stats ? "Yes" : "No"}</div>
+                    <div>Referrals count: {referrals?.length || 0}</div>
+                    <div>User: {user?.username || "Not logged in"}</div>
+                    {stats && (
+                      <div>Account Balance: {stats.accountBalance}</div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Referral Info Card */}

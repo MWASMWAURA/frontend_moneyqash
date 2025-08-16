@@ -39,12 +39,21 @@ export default function TasksPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const fetchWithCredentials = (url: string) =>
+    fetch(url, { credentials: "include" }).then((res) => {
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    });
+
   const {
     data: stats,
     isLoading: statsLoading,
     error: statsError,
   } = useQuery<UserStats>({
     queryKey: ["/api/user/stats"],
+    queryFn: () => fetchWithCredentials("/api/user/stats"),
+    retry: 3,
+    staleTime: 30000,
   });
 
   // Get available tasks
@@ -54,25 +63,11 @@ export default function TasksPage() {
     error: availableTasksError,
   } = useQuery<AvailableTask[]>({
     queryKey: ["/api/available-tasks"],
-    queryFn: async () => {
-      const response = await fetch("/api/available-tasks", {
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-          "Cache-Control": "no-cache",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch available tasks");
-      }
-
-      const data = await response.json();
-      return data || [];
-    },
-    staleTime: 0, // Disable caching for available tasks
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchOnMount: true, // Refetch when component mounts
+    queryFn: () => fetchWithCredentials("/api/available-tasks"),
+    retry: 3,
+    staleTime: 60000, // Cache for 1 minute instead of 0
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   // Get user tasks
@@ -82,29 +77,18 @@ export default function TasksPage() {
     error: userTasksError,
   } = useQuery<Task[]>({
     queryKey: ["/api/user/tasks", user?.id], // Include user ID in cache key
-    queryFn: async () => {
-      const response = await fetch("/api/user/tasks", {
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-          "Cache-Control": "no-cache",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch user tasks");
-      }
-
-      const data = await response.json();
-      return data || [];
-    },
-    staleTime: 0, // Disable caching for user tasks
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchOnMount: true, // Refetch when component mounts
+    queryFn: () => fetchWithCredentials("/api/user/tasks"),
+    retry: 3,
+    staleTime: 30000, // Cache for 30 seconds instead of 0
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   // Check if user is new (has no completed tasks)
-  const isNewUser = userTasks?.every((task) => !task.completed) || false;
+  const isNewUser =
+    !userTasks ||
+    userTasks.length === 0 ||
+    userTasks.every((task) => !task.completed);
 
   const isLoading = statsLoading || availableTasksLoading || userTasksLoading;
   const tasksError = statsError || availableTasksError || userTasksError;
@@ -201,8 +185,11 @@ export default function TasksPage() {
       (task) => task.type === type && task.completed
     );
 
-    // For new users, show all available tasks
+    // For new users, show all available tasks - no restrictions
     if (isNewUser) {
+      console.log(
+        `[DEBUG] New user detected, showing ${available.length} available tasks of type: ${type}`
+      );
       return available;
     }
 
@@ -366,6 +353,23 @@ export default function TasksPage() {
           <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-16 lg:pb-8">
             <div className="space-y-6">
               <h1 className="text-2xl font-bold">Tasks</h1>
+
+              {/* Debug Info - Remove in production */}
+              {process.env.NODE_ENV === "development" && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm">
+                  <strong>Debug Info:</strong>
+                  <br />
+                  Is New User: {isNewUser.toString()}
+                  <br />
+                  User Tasks Count: {userTasks?.length || 0}
+                  <br />
+                  Available Tasks Count: {availableTasks?.length || 0}
+                  <br />
+                  User ID: {user?.id}
+                  <br />
+                  Stats Loaded: {stats ? "Yes" : "No"}
+                </div>
+              )}
 
               {/* Enhanced Task Earnings Summary */}
               {stats && (
