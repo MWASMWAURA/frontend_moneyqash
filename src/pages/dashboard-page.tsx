@@ -13,6 +13,28 @@ import WithdrawModal from "@/components/withdraw-modal";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
+// Get the API base URL from environment variable
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// Fetcher with credentials for authenticated endpoints
+const fetchWithCredentials = (url: string) => {
+  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+  return fetch(fullUrl, {
+    credentials: "include",
+    cache: "no-store",
+    headers: {
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+    },
+  }).then((res) => {
+    if (!res.ok)
+      throw new Error(
+        `Network response was not ok: ${res.status} ${res.statusText}`
+      );
+    return res.json();
+  });
+};
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -21,9 +43,16 @@ export default function DashboardPage() {
   const [withdrawSource, setWithdrawSource] = useState<string>("");
   const [withdrawAmount, setWithdrawAmount] = useState<number>(0);
 
-  const { data: stats, isLoading, error } = useQuery<UserStats>({
+  const {
+    data: stats,
+    isLoading,
+    error,
+  } = useQuery<UserStats>({
     queryKey: ["/api/user/stats"],
+    queryFn: () => fetchWithCredentials("/api/user/stats"),
     refetchInterval: 30000, // Refresh every 30 seconds
+    retry: 3,
+    staleTime: 30000,
   });
 
   const openActivationModal = () => {
