@@ -32,7 +32,14 @@ export default function ReferralsPage() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const fetchWithCredentials = (url: string) =>
-    fetch(url, { credentials: "include" }).then((res) => {
+    fetch(url, {
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    }).then((res) => {
       if (!res.ok) throw new Error("Network response was not ok");
       return res.json();
     });
