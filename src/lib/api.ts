@@ -6,7 +6,7 @@ export const endpoints = {
     earnings: '/api/user/earnings',
     withdrawals: '/api/user/withdrawals',
     activate: '/api/user/activate',
-    withdraw: '/api/user/withdraw',
+    withdraw: '/api/withdrawals',
     referrals: '/api/user/referrals',
   },
   
@@ -24,9 +24,10 @@ export const endpoints = {
   
   // Authentication endpoints
   auth: {
-    login: '/api/auth/login',
-    register: '/api/auth/register',
-    logout: '/api/auth/logout',
+    login: '/api/login',
+    register: '/api/register', 
+    logout: '/api/logout',
+    user: '/api/user',
   },
   
   // M-Pesa endpoints
@@ -36,10 +37,29 @@ export const endpoints = {
   },
 };
 
-// Helper function to get full URL (optional - your queryClient already handles this)
+// API Configuration
+const getApiBaseUrl = (): string => {
+  // In production, use relative /api paths that will be proxied by Vercel
+  if (import.meta.env.PROD) {
+    return '';
+  }
+  
+  // In development, use the full backend URL
+  return import.meta.env.VITE_API_URL || 'http://localhost:5000';
+};
+
+// Helper function to get full URL
 export const getApiUrl = (endpoint: string): string => {
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const baseUrl = getApiBaseUrl();
   return `${baseUrl}${endpoint}`;
+};
+
+// App configuration
+export const config = {
+  apiUrl: getApiBaseUrl(),
+  appUrl: import.meta.env.VITE_APP_URL || 'http://localhost:5173',
+  isProd: import.meta.env.PROD,
+  isDev: import.meta.env.DEV,
 };
 
 export const apiRequest = async (method: string, url: string, data?: any) => {

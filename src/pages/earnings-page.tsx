@@ -56,10 +56,13 @@ export default function EarningsPage() {
         body: JSON.stringify({
           source: withdrawSource,
           amount: withdrawAmount,
+          paymentMethod: "M-Pesa", // Default payment method
+          phoneNumber: user?.phone || "", // Use user's phone or empty string
         }),
       });
       if (!response.ok) {
-        throw new Error("Withdrawal failed");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Withdrawal failed");
       }
       setWithdrawModalOpen(false);
       // Refresh data after successful withdrawal
