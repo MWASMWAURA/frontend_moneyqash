@@ -12,10 +12,12 @@ import ActivationModal from "@/components/activation-modal";
 import WithdrawModal from "@/components/withdraw-modal";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getApiUrl, endpoints } from "@/lib/api";
 
 // Fetcher with credentials for authenticated endpoints
-const fetchWithCredentials = (url: string) =>
-  fetch(url, {
+const fetchWithCredentials = (url: string) => {
+  const fullUrl = getApiUrl(url);
+  return fetch(fullUrl, {
     credentials: "include",
     cache: "no-store",
     headers: {
@@ -23,9 +25,12 @@ const fetchWithCredentials = (url: string) =>
       Pragma: "no-cache",
     },
   }).then((res) => {
-    if (!res.ok) throw new Error("Network response was not ok");
+    if (!res.ok) {
+      throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+    }
     return res.json();
   });
+};
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -39,12 +44,14 @@ export default function DashboardPage() {
     data: stats,
     isLoading,
     error,
+    refetch: refetchStats,
   } = useQuery<UserStats>({
-    queryKey: ["/api/user/stats"],
-    queryFn: () => fetchWithCredentials("/api/user/stats"),
+    queryKey: [endpoints.user.stats],
+    queryFn: () => fetchWithCredentials(endpoints.user.stats),
     refetchInterval: 30000, // Refresh every 30 seconds
     retry: 3,
     staleTime: 30000,
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   const openActivationModal = () => {
@@ -66,13 +73,30 @@ export default function DashboardPage() {
   }
 
   if (error || !stats) {
+    console.error("Dashboard data error:", error);
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            Failed to load dashboard data. Please try again later.
+            Failed to load dashboard data.{" "}
+            {error?.message || "Please try again later."}
+            <br />
+            <div className="mt-2 space-x-2">
+              <button
+                onClick={() => refetchStats()}
+                className="text-sm underline hover:no-underline"
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-sm underline hover:no-underline"
+              >
+                Refresh page
+              </button>
+            </div>
           </AlertDescription>
         </Alert>
       </div>

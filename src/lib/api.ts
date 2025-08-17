@@ -39,13 +39,10 @@ export const endpoints = {
 
 // API Configuration
 const getApiBaseUrl = (): string => {
-  // In production, use relative /api paths that will be proxied by Vercel
-  if (import.meta.env.PROD) {
-    return '';
-  }
-  
-  // In development, use the full backend URL
-  return import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  // Use relative paths in both development and production
+  // In development, Vite proxy will handle the routing
+  // In production, Vercel will handle the routing
+  return '';
 };
 
 // Helper function to get full URL

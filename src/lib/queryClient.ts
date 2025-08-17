@@ -1,7 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-// Get the backend URL from environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Use relative URLs - proxy will handle routing in development
+const API_BASE_URL = '';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {

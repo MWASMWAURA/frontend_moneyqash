@@ -38,8 +38,27 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:3001',
+        target: 'https://backend-moneyqash.onrender.com',
         changeOrigin: true,
+        secure: true,
+        headers: {
+          'Origin': 'https://moneyqash.online',
+          'Referer': 'https://moneyqash.online/',
+        },
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            // Override the origin header to match the expected domain
+            proxyReq.setHeader('Origin', 'https://moneyqash.online');
+            proxyReq.setHeader('Referer', 'https://moneyqash.online/');
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          });
+        },
       },
     },
   },
