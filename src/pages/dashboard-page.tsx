@@ -13,13 +13,9 @@ import WithdrawModal from "@/components/withdraw-modal";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-// Get the API base URL from environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
 // Fetcher with credentials for authenticated endpoints
-const fetchWithCredentials = (url: string) => {
-  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
-  return fetch(fullUrl, {
+const fetchWithCredentials = (url: string) =>
+  fetch(url, {
     credentials: "include",
     cache: "no-store",
     headers: {
@@ -27,13 +23,9 @@ const fetchWithCredentials = (url: string) => {
       Pragma: "no-cache",
     },
   }).then((res) => {
-    if (!res.ok)
-      throw new Error(
-        `Network response was not ok: ${res.status} ${res.statusText}`
-      );
+    if (!res.ok) throw new Error("Network response was not ok");
     return res.json();
   });
-};
 
 export default function DashboardPage() {
   const { user } = useAuth();
