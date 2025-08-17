@@ -330,15 +330,6 @@ export default function EarningsPage() {
                 </Button>
               </div>
 
-              {/* Minimum Withdrawal Notice */}
-              <Alert>
-                <AlertTitle>Withdrawal Information</AlertTitle>
-                <AlertDescription>
-                  Minimum withdrawal amount is 600 Shillings. A fee of 50
-                  Shillings is charged for each withdrawal.
-                </AlertDescription>
-              </Alert>
-
               {/* Enhanced Earnings Summary */}
               <EarningsSummary
                 earnings={earnings}

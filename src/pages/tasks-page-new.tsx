@@ -337,14 +337,6 @@ export default function TasksPage() {
                       )}
                     </div>
                   </div>
-
-                  {/* Withdrawal Notice */}
-                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                      <i className="ri-information-line mr-1"></i>
-                      Minimum withdrawal: 600 Sh • Withdrawal fee: 50 Sh
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
 
