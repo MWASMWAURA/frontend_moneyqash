@@ -23,7 +23,7 @@
         },
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "*"
+          "value": "https://www.moneyqash.online"
         },
         {
           "key": "Access-Control-Allow-Methods",

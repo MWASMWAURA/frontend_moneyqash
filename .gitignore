@@ -28,3 +28,6 @@ Thumbs.db
 
 # Misc
 *.log
+
+#backend folder
+backend)moneyqash/
