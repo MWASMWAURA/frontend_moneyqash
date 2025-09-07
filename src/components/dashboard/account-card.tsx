@@ -6,7 +6,11 @@ interface AccountCardProps {
   onWithdraw: (source: string, amount: number) => void;
 }
 
-export default function AccountCard({ stats, isActivated, onWithdraw }: AccountCardProps) {
+export default function AccountCard({
+  stats,
+  isActivated,
+  onWithdraw,
+}: AccountCardProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
       {/* Account Balance Card */}
@@ -34,7 +38,8 @@ export default function AccountCard({ stats, isActivated, onWithdraw }: AccountC
           ) : (
             isActivated && (
               <p className="text-xs text-orange-600 mt-1">
-                <i className="ri-information-line"></i> Minimum withdrawal amount: KSh 600
+                <i className="ri-information-line"></i> Minimum withdrawal
+                amount: KSh 600
               </p>
             )
           )}
@@ -57,12 +62,18 @@ export default function AccountCard({ stats, isActivated, onWithdraw }: AccountC
         </div>
         <div className="mt-4 space-y-2">
           <div className="flex justify-between text-xs text-gray-500">
-            <span>Referrals</span>
-            <span>KSh {stats.accountBalance}</span>
+            <span>Referrals (Total Earned)</span>
+            <span>KSh {stats.totalReferralEarnings}</span>
           </div>
           <div className="flex justify-between text-xs text-gray-500">
-            <span>Tasks</span>
-            <span>KSh {stats.totalProfit - stats.accountBalance}</span>
+            <span>Tasks (Total Earned)</span>
+            <span>
+              KSh{" "}
+              {stats.taskEarnings.ads +
+                stats.taskEarnings.tiktok +
+                stats.taskEarnings.youtube +
+                stats.taskEarnings.instagram}
+            </span>
           </div>
         </div>
       </div>
@@ -71,7 +82,9 @@ export default function AccountCard({ stats, isActivated, onWithdraw }: AccountC
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-sm font-medium text-gray-500">Referral Network</p>
+            <p className="text-sm font-medium text-gray-500">
+              Referral Network
+            </p>
             <h3 className="text-2xl font-bold text-gray-900 mt-1">
               {stats.directReferrals + stats.secondaryReferrals} Users
             </h3>

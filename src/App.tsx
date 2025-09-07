@@ -20,7 +20,10 @@ const AuthPage = lazy(() => import("@/pages/auth-page"));
 // Loading component
 const PageLoader = () => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    <div className="flex flex-col items-center gap-3">
+      <div className="h-10 w-10 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
+      <p className="text-sm text-gray-500">Loading…</p>
+    </div>
   </div>
 );
 

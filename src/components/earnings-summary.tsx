@@ -265,7 +265,7 @@ export default function EarningsSummary({
               </span>
             </div>
 
-            {/* Instagram Tasks */}
+            {/* Instagram Tasks
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
@@ -276,7 +276,7 @@ export default function EarningsSummary({
               <span className="text-sm font-semibold text-gray-900">
                 {stats.taskEarnings.instagram} Sh
               </span>
-            </div>
+            </div> */}
 
             {/* Total Task Earnings */}
             <div className="border-t pt-3 mt-3">

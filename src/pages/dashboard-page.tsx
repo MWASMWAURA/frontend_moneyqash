@@ -16,7 +16,9 @@ import { getApiUrl, endpoints } from "@/lib/api";
 
 // Fetcher with credentials for authenticated endpoints
 const fetchWithCredentials = (url: string) => {
+  // Expect endpoint like "/api/user/stats" - not a full URL!
   const fullUrl = getApiUrl(url);
+
   return fetch(fullUrl, {
     credentials: "include",
     cache: "no-store",

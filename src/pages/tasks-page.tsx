@@ -371,7 +371,7 @@ export default function TasksPage() {
                 </div>
               )}
 
-              {/* Enhanced Task Earnings Summary */}
+              {/* Enhanced Task Earnings Summary
               {stats && (
                 <Card className="mb-6">
                   <CardHeader>
@@ -425,7 +425,7 @@ export default function TasksPage() {
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              )} */}
 
               <Card>
                 <CardHeader>
@@ -459,11 +459,11 @@ export default function TasksPage() {
                           <span className="hidden sm:inline">YouTube</span>
                           <span className="inline sm:hidden">YT</span>
                         </TabsTrigger>
-                        <TabsTrigger value="instagram" className="w-1/4 py-4">
+                        {/* <TabsTrigger value="instagram" className="w-1/4 py-4">
                           <i className="ri-instagram-line mr-1"></i>
                           <span className="hidden sm:inline">Instagram</span>
                           <span className="inline sm:hidden">IG</span>
-                        </TabsTrigger>
+                        </TabsTrigger> */}
                       </TabsList>
                     </div>
 

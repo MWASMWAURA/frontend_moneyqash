@@ -1,6 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-// Use relative URLs - proxy will handle routing in development
+// Use getApiBaseUrl from api.ts for consistent environment handling
+
 const API_BASE_URL = '';
 
 async function throwIfResNotOk(res: Response) {

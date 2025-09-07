@@ -2,9 +2,6 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Set title
-document.title = "ReferralPro - Earn Through Referrals";
-
 // Preload critical resources with non-blocking approach
 const loadExternalResources = () => {
   // Load Remix icons with preload for better performance

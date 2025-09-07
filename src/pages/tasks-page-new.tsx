@@ -101,10 +101,10 @@ export default function TasksPage() {
               </div>
             )}
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              {/* <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <h1 className="text-2xl font-bold">Video Tasks</h1>
 
-                {/* Enhanced Earnings Display */}
+                Enhanced Earnings Display
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="text-center">
                     <span className="block text-xs text-gray-500">YouTube</span>
@@ -145,7 +145,7 @@ export default function TasksPage() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Task Balances Overview Card */}
               <Card>
@@ -156,17 +156,17 @@ export default function TasksPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* YouTube Card */}
-                    <div className="bg-red-50 border border-red-100 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
+                    <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-sm min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center min-w-0">
                           <i className="ri-youtube-line text-red-500 mr-2"></i>
-                          <span className="font-medium text-red-900">
+                          <span className="font-medium text-red-900 truncate">
                             YouTube
                           </span>
                         </div>
-                        <TrendingUp className="h-4 w-4 text-red-500" />
+                        <TrendingUp className="h-4 w-4 text-red-500 flex-shrink-0" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex justify-between">
@@ -203,15 +203,15 @@ export default function TasksPage() {
                     </div>
 
                     {/* TikTok Card */}
-                    <div className="bg-pink-50 border border-pink-100 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
+                    <div className="bg-pink-50 border border-pink-100 rounded-lg p-3 text-sm min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center min-w-0">
                           <i className="ri-tiktok-line text-pink-500 mr-2"></i>
-                          <span className="font-medium text-pink-900">
+                          <span className="font-medium text-pink-900 truncate">
                             TikTok
                           </span>
                         </div>
-                        <TrendingUp className="h-4 w-4 text-pink-500" />
+                        <TrendingUp className="h-4 w-4 text-pink-500 flex-shrink-0" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex justify-between">
@@ -247,7 +247,7 @@ export default function TasksPage() {
                       )}
                     </div>
 
-                    {/* Instagram Card */}
+                    {/* Instagram Card
                     <div className="bg-purple-50 border border-purple-100 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center">
@@ -290,18 +290,18 @@ export default function TasksPage() {
                           Withdraw
                         </Button>
                       )}
-                    </div>
+                    </div> */}
 
                     {/* Ads Card */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center min-w-0">
                           <i className="ri-advertisement-line text-blue-500 mr-2"></i>
-                          <span className="font-medium text-blue-900">
+                          <span className="font-medium text-blue-900 truncate">
                             Video Ads
                           </span>
                         </div>
-                        <TrendingUp className="h-4 w-4 text-blue-500" />
+                        <TrendingUp className="h-4 w-4 text-blue-500 flex-shrink-0" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex justify-between">

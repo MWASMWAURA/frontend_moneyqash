@@ -257,13 +257,12 @@ export default function VideoTaskCard({
                   <span className="font-medium">Unavailable</span>
                 </div>
                 <p className="text-center text-slate-500">
-                  You've already completed this task. You can watch again{" "}
-                  {getCooldownTimeRemaining()}.
+                  You've already completed this task.
                 </p>
-                <div className="flex items-center gap-2 text-slate-500 mt-2">
+                {/* <div className="flex items-center gap-2 text-slate-500 mt-2">
                   <CalendarClock size={16} />
                   <span className="text-sm">Two-week cooldown period</span>
-                </div>
+                </div> */}
               </div>
             ) : (
               <>
@@ -321,7 +320,7 @@ export default function VideoTaskCard({
           cooldownActive ? (
             <Button variant="outline" className="w-full" disabled>
               <CalendarClock className="w-4 h-4 mr-2" />
-              Available {getCooldownTimeRemaining()}
+              Try again later
             </Button>
           ) : (
             <Button
