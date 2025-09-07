@@ -153,7 +153,7 @@ export default function ActivationModal({
     <>
       {/* Main Activation Modal */}
       <Dialog open={isOpen && !showCompletionModal} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-full max-w-xs sm:max-w-md p-2 sm:p-8 rounded-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <i className="ri-rocket-line text-primary mr-2"></i>

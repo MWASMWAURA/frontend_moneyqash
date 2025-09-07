@@ -176,7 +176,7 @@ export default function WithdrawModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-full max-w-xs sm:max-w-md p-2 sm:p-8 rounded-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <i className="ri-bank-card-line text-green-600 mr-2"></i>
