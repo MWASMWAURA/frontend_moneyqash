@@ -114,8 +114,14 @@ export default function AuthPage() {
                 <a href="/auth" className="text-primary underline">
                   logout
                 </a>{" "}
-                before registering a new account.Come back to this url and
-                refresh.
+                before registering a new account.Come back to this url and{" "}
+                <a
+                  href={window.location.href}
+                  className="text-primary underline cursor-pointer"
+                >
+                  refresh
+                </a>
+                .
               </p>
             </div>
           </CardContent>
